@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "GLUE3D"
+requires-python = ">= 3.10"
+version = "0.2.0"
+description = "Official project for GLUE3D."
+authors = [{name="Giorgio Mariani", email="giorgiomariani94@gmail.com"},]
+readme = "README.md"
+
+dependencies = [
+    "numpy",
+    "transformers",
+    "huggingface_hub",
+    "pandas",
+    "datasets",
+    "sentence-transformers",
+    "nltk",
+    "scipy",
+    "click",
+    "rouge",
+    "OpenEXR",
+]
+
+[project.optional-dependencies]
+blender = [
+    "bpy==4.4.0"
+]
+
+qwen3eval = ["llama-cpp-python"]
+dev = [
+    "pre-commit",
+    "black",
+    "pytest",
+]
+
+[tool.setuptools]
+packages = ["glue3d"]
