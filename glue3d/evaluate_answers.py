@@ -87,6 +87,12 @@ def evaluate_GLUE3D_answers(
         if not a_k in ground_truth_data.columns:
             raise ValueError(f"ground_truth_data DataFrame must contain the '{a_k}' column.")
 
+    # Check that all MODEL_ANSWER values are a subset of ANSWER values
+    valid_values = set(ground_truth_data[a_k].dropna().unique())
+    difference = set(model_answer_data[ma_k].dropna().unique()).difference(valid_values)
+    if len(difference) > 0:
+        raise ValueError(f"invalid MODEL_ANSWER values: {difference}. Valid values: {valid_values}")
+
     data = model_answer_data.join(ground_truth_data, validate="1:1")
 
     # For every entry, pass input data to the evaluator

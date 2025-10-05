@@ -13,15 +13,7 @@ from huggingface_hub import hf_hub_download
 from datasets import load_dataset
 
 from glue3d.data import QADataset, load_pointcloud
-
-
-class AnswerGenerator(abc.ABC):
-    @abc.abstractmethod
-    def __call__(
-        self,
-        data: Any,
-        texts: str,
-    ): ...
+from glue3d.models import AnswerGenerator
 
 
 @enum.unique
@@ -139,6 +131,27 @@ def load_GLUE3D_benchmark(dataset_name: str, qa_task: str, cache_dir: Path) -> Q
     )
 
 
+def process_binary(answer: str):
+    if answer is not ["Yes", "No"]:
+        raise ValueError(f"Output answer '{answer}' should be either 'Yes' or 'No', found {answer} instead!")
+
+    return answer == "Yes"
+
+
+def process_multichoice(answer: str):
+    choices = ["A", "B", "C", "D"]
+    if answer not in choices:
+        raise ValueError(f"Output answer '{answer}' should be one of {choices}, found {type(answer)} instead!")
+
+    return answer
+
+
+def process_caption(answer: str):
+    if not isinstance(answer, str):
+        raise ValueError(f"Output answer '{answer}' should be a string, found {type(answer)} instead!")
+    return answer
+
+
 def generate_GLUE3D_answers(
     qa_task: str,
     dataset_type: str,
@@ -146,6 +159,13 @@ def generate_GLUE3D_answers(
     output_file: Optional[Path] = None,
 ) -> pd.DataFrame:
     output_file = Path(output_file)
+
+    # Task to answer checker
+    processors = {
+        QATasks.BINARY: process_binary,
+        QATasks.MULTICHOICE: process_multichoice,
+        QATasks.CAPTION: process_caption,
+    }
 
     # Check if output file exists
     if output_file is not None:
@@ -163,7 +183,9 @@ def generate_GLUE3D_answers(
     if cache_dir is None:
         cache_dir = Path(".cache/glue3d").absolute()
         print(f"Warning: 'GLUE3D_CACHE_DIR' is not set. Using default cache directory ({cache_dir}).")
+
     dataset = load_GLUE3D_benchmark(dataset_type, qa_task, cache_dir=cache_dir)
+    task_processor = processors[QATasks(qa_task)]
 
     responses = []
     for batch in tqdm(dataset):
@@ -178,6 +200,7 @@ def generate_GLUE3D_answers(
 
         # Compute anser
         answer = answer_generator(question_data, question)  # List of strings
+        answer = task_processor(answer)
 
         # Append results to output file
         responses.append({"OBJECT_ID": object_id, "QUESTION_ID": question_id, "MODEL_ANSWER": answer})

@@ -11,51 +11,59 @@ from glue3d.evaluators import Evaluators
 
 
 def prepare_answer_generator(model: MLLMs):
-    task_to_cls = {}
+    def _set_max_tokens(fn: Callable) -> Callable:
+        return lambda *args: fn(*args, max_new_tokens=128)
 
+    def _set_bin_choices(fn: Callable) -> Callable:
+        return lambda *args: fn(*args, choices=["Yes", "No"])
+
+    def _set_multi_choices(fn: Callable) -> Callable:
+        return lambda *args: fn(*args, choices=["A", "B", "C", "D"])
+
+    task_to_cls = {}
     if model in {MLLMs.POINTLLM_7B, MLLMs.POINTLLM_13B}:
         from glue3d.models.pointllm import PointLLMAnswerGenerator, MultiChoicePointLLMAnswerGenerator
 
-        task_to_cls[QATasks.CAPTION] = PointLLMAnswerGenerator
-        task_to_cls[QATasks.BINARY] = MultiChoicePointLLMAnswerGenerator
-        task_to_cls[QATasks.MULTICHOICE] = MultiChoicePointLLMAnswerGenerator
+        task_to_cls[QATasks.CAPTION] = _set_max_tokens(PointLLMAnswerGenerator)
+        task_to_cls[QATasks.BINARY] = _set_bin_choices(MultiChoicePointLLMAnswerGenerator)
+        task_to_cls[QATasks.MULTICHOICE] = _set_multi_choices(MultiChoicePointLLMAnswerGenerator)
     if model in {MLLMs.SHAPELLM_7B, MLLMs.SHAPELLM_13B}:
         from glue3d.models.shapellm import ShapeLLMAnswerGenerator, MultiChoiceShapeLLMAnswerGenerator
 
-        task_to_cls[QATasks.CAPTION] = ShapeLLMAnswerGenerator
-        task_to_cls[QATasks.BINARY] = MultiChoiceShapeLLMAnswerGenerator
-        task_to_cls[QATasks.MULTICHOICE] = MultiChoiceShapeLLMAnswerGenerator
+        task_to_cls[QATasks.CAPTION] = _set_max_tokens(ShapeLLMAnswerGenerator)
+        task_to_cls[QATasks.BINARY] = _set_bin_choices(MultiChoiceShapeLLMAnswerGenerator)
+        task_to_cls[QATasks.MULTICHOICE] = _set_multi_choices(MultiChoiceShapeLLMAnswerGenerator)
     if model == MLLMs.MINIGPT3D:
         from glue3d.models.minigpt3d import MiniGPT3DAnswerGenerator, MultiChoiceMiniGPT3DAnswerGenerator
 
-        task_to_cls[QATasks.CAPTION] = MiniGPT3DAnswerGenerator
-        task_to_cls[QATasks.BINARY] = MultiChoiceMiniGPT3DAnswerGenerator
-        task_to_cls[QATasks.MULTICHOICE] = MultiChoiceMiniGPT3DAnswerGenerator
+        task_to_cls[QATasks.CAPTION] = _set_max_tokens(MiniGPT3DAnswerGenerator)
+        task_to_cls[QATasks.BINARY] = _set_bin_choices(MultiChoiceMiniGPT3DAnswerGenerator)
+        task_to_cls[QATasks.MULTICHOICE] = _set_multi_choices(MultiChoiceMiniGPT3DAnswerGenerator)
     if model == MLLMs.QWEN_VL:
         from glue3d.models.qwen import QwenAnswerGenerator, MultichoiceQwenAnswerGenerator
 
-        task_to_cls[QATasks.CAPTION] = QwenAnswerGenerator
-        task_to_cls[QATasks.BINARY] = MultichoiceQwenAnswerGenerator
-        task_to_cls[QATasks.MULTICHOICE] = MultichoiceQwenAnswerGenerator
+        task_to_cls[QATasks.CAPTION] = _set_max_tokens(QwenAnswerGenerator)
+        task_to_cls[QATasks.BINARY] = _set_bin_choices(MultichoiceQwenAnswerGenerator)
+        task_to_cls[QATasks.MULTICHOICE] = _set_multi_choices(MultichoiceQwenAnswerGenerator)
     if model == MLLMs.LLAVA:
         from glue3d.models.llava import LlaVaAnswerGenerator, MultichoiceLlaVaAnswerGenerator
 
-        task_to_cls[QATasks.CAPTION] = LlaVaAnswerGenerator
-        task_to_cls[QATasks.BINARY] = MultichoiceLlaVaAnswerGenerator
-        task_to_cls[QATasks.MULTICHOICE] = MultichoiceLlaVaAnswerGenerator
+        task_to_cls[QATasks.CAPTION] = _set_max_tokens(LlaVaAnswerGenerator)
+        task_to_cls[QATasks.BINARY] = _set_bin_choices(MultichoiceLlaVaAnswerGenerator)
+        task_to_cls[QATasks.MULTICHOICE] = _set_multi_choices(MultichoiceLlaVaAnswerGenerator)
     if model == MLLMs.PHI_VISION:
         from glue3d.models.phi_vision import PhiVisionAnswerGenerator, MultichoicePhiVsionAnswerGenerator
 
-        task_to_cls[QATasks.CAPTION] = PhiVisionAnswerGenerator
-        task_to_cls[QATasks.BINARY] = MultichoicePhiVsionAnswerGenerator
-        task_to_cls[QATasks.MULTICHOICE] = MultichoicePhiVsionAnswerGenerator
+        task_to_cls[QATasks.CAPTION] = _set_max_tokens(PhiVisionAnswerGenerator)
+        task_to_cls[QATasks.BINARY] = _set_bin_choices(MultichoicePhiVsionAnswerGenerator)
+        task_to_cls[QATasks.MULTICHOICE] = _set_multi_choices(MultichoicePhiVsionAnswerGenerator)
 
     if model == MLLMs.LLAVA_3D:
         from glue3d.models.llava_3d import LlaVa3DAnswerGenerator, MultichoiceLlaVa3DAnswerGenerator
 
-        task_to_cls[QATasks.CAPTION] = LlaVa3DAnswerGenerator
-        task_to_cls[QATasks.BINARY] = MultichoiceLlaVa3DAnswerGenerator
-        task_to_cls[QATasks.MULTICHOICE] = MultichoiceLlaVa3DAnswerGenerator
+        task_to_cls[QATasks.CAPTION] = _set_max_tokens(LlaVa3DAnswerGenerator)
+        task_to_cls[QATasks.BINARY] = _set_bin_choices(MultichoiceLlaVa3DAnswerGenerator)
+        task_to_cls[QATasks.MULTICHOICE] = _set_multi_choices(MultichoiceLlaVa3DAnswerGenerator)
 
     if model in {
         MLLMs.LLAMA3,
@@ -67,21 +75,11 @@ def prepare_answer_generator(model: MLLMs):
     }:
         from glue3d.models.text_only import TextAnswerGenerator, MultichoiceTextAnswerGenerator
 
-        task_to_cls[QATasks.CAPTION] = TextAnswerGenerator
-        task_to_cls[QATasks.BINARY] = MultichoiceTextAnswerGenerator
-        task_to_cls[QATasks.MULTICHOICE] = MultichoiceTextAnswerGenerator
+        task_to_cls[QATasks.CAPTION] = _set_max_tokens(TextAnswerGenerator)
+        task_to_cls[QATasks.BINARY] = _set_bin_choices(MultichoiceTextAnswerGenerator)
+        task_to_cls[QATasks.MULTICHOICE] = _set_multi_choices(MultichoiceTextAnswerGenerator)
 
-    def binary_postprocess_fn(x):
-        assert x in ["Yes", "No"]
-        return x == "Yes"
-
-    output = {}
-    output[QATasks.CAPTION] = lambda *args: task_to_cls[QATasks.CAPTION](*args, max_new_tokens=128)
-    output[QATasks.BINARY] = lambda *args: task_to_cls[QATasks.BINARY](
-        *args, choices=["Yes", "No"], postprocess_fn=binary_postprocess_fn
-    )
-    output[QATasks.MULTICHOICE] = lambda *args: task_to_cls[QATasks.MULTICHOICE](*args, choices=["A", "B", "C", "D"])
-    return output
+    return task_to_cls
 
 
 @click.command("generate")
