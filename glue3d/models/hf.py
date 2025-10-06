@@ -4,7 +4,7 @@ from typing import *
 from glue3d.models.base import AnswerGenerator
 
 
-class HuggingfaceAnswerGenerator(AnswerGenerator):
+class HFAnswerGenerator(AnswerGenerator):
     def __init__(self, model, tokenizer, **kwargs):
         self.model = model
         self.tokenizer = tokenizer
@@ -30,7 +30,7 @@ class HuggingfaceAnswerGenerator(AnswerGenerator):
         return output.strip()
 
 
-class MultichoiceHuggingfaceGenerator(HuggingfaceAnswerGenerator):
+class MultichoiceHFGenerator(HFAnswerGenerator):
     def __init__(self, model, tokenizer, choices: List[str] = ("A", "B", "C", "D"), **kwargs):
         super().__init__(model, tokenizer, **kwargs)
         self.choices = choices
@@ -58,6 +58,11 @@ class MultichoiceHuggingfaceGenerator(HuggingfaceAnswerGenerator):
             return max(answer_prob, key=answer_prob.get)
 
 
-class BinaryHuggingfaceGenerator(MultichoiceHuggingfaceGenerator):
+class BinaryHFGenerator(MultichoiceHFGenerator):
     def __init__(self, model, tokenizer, **kwargs):
         super().__init__(model, tokenizer, choices=["Yes", "No"], **kwargs)
+
+
+class CaptioningHFGenerator(HFAnswerGenerator):
+    def __init__(self, model, tokenizer, **kwargs):
+        super().__init__(model, tokenizer, max_new_tokens=128, **kwargs)
