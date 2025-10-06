@@ -3,10 +3,11 @@ from typing import *
 
 import click
 
+from glue3d.data import QATasks
 from glue3d.generate_answers import generate_GLUE3D_answers
 from glue3d.evaluate_answers import evaluate_GLUE3D_answers
 from glue3d.models.loaders import MLLMs, MODEL_LOADERS
-from glue3d.generate_answers import QATasks, Datasets
+from glue3d.data import Datasets
 from glue3d.evaluators import Evaluators
 
 
@@ -115,31 +116,6 @@ def generate_answers(model: str, task: List[str], data: str, output_file: str = 
 @click.option("--task", "-t", type=click.Choice([x.value for x in QATasks]), required=True)
 @click.option("--evaluator", "-e", type=click.Choice([x.value for x in Evaluators]))
 def evaluate_answers(input_file: str, output_file: str, task: str, evaluator: Optional[str] = None):
-
-    if QATasks(task) == QATasks.CAPTION:
-        judge = Evaluators(evaluator)
-        from glue3d.evaluators.loaders import load_phi3_5_mini_instruct, load_qwen3_30B_A3B_model
-
-        if judge == Evaluators.PHI_3_5_JUDGE:
-            from glue3d.evaluators.phi3_5 import Phi3Judge
-
-            evaluator = Phi3Judge(*load_phi3_5_mini_instruct())
-
-        elif judge == Evaluators.QWEN_3_30B_JUDGE:
-            from glue3d.evaluators.qwen3 import Qwen3Judge
-
-            evaluator = Qwen3Judge(*load_qwen3_30B_A3B_model())
-        elif judge == Evaluators.TRADITIONAL:
-            from glue3d.evaluators.misc import TraditionalCaptionMetricEvaluator
-
-            evaluator = TraditionalCaptionMetricEvaluator()
-        else:
-            assert False
-
-    else:
-        print("Ignoring evaluator, using exact match for evaluation.")
-        evaluator = lambda **kwargs: kwargs["ANSWER"] == kwargs["MODEL_ANSWER"]
-
     import pandas as pd
 
     answers = pd.read_csv(input_file, index_col=["OBJECT_ID", "QUESTION_ID"])
