@@ -10,7 +10,7 @@ from glue3d.models import AnswerGenerator
 
 
 def process_binary(answer: str):
-    if answer is not ["Yes", "No"]:
+    if answer not in ["Yes", "No"]:
         raise ValueError(f"Output answer '{answer}' should be either 'Yes' or 'No', found {answer} instead!")
 
     return answer == "Yes"
@@ -36,7 +36,25 @@ def generate_GLUE3D_answers(
     answer_generator: AnswerGenerator,
     output_file: Optional[Path] = None,
 ) -> pd.DataFrame:
-    output_file = Path(output_file)
+    """Generates answers for the GLUE3D benchmark dataset using a provided answer generator function.
+
+    This function loads the specified GLUE3D dataset and applies the given answer generator to each question.
+    The generated answers are processed according to the QA task type and collected into a DataFrame.
+    Optionally, the results can be saved to a CSV file.
+
+    *Note:* The cache directory for the GLUE3D dataset can be set using the 'GLUE3D_CACHE_DIR' environment
+    variable. If not set, a default cache directory '.cache/glue3d' is used.
+
+    Args:
+        qa_task (str): The type of QA task to perform. Must be one between ('BINARY', 'MULTICHOICE', 'CAPTION').
+        dataset_type (str): The type of dataset split to use (e.g., 'train', 'val', 'test').
+        answer_generator (AnswerGenerator): A callable that takes question data and a question string, and returns an answer.
+        output_file (Optional[Path], optional): Path to the output CSV file. If provided, results are saved to this file.
+            Raises an error if the file already exists, the directory does not exist, or the extension is not '.csv'.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the generated answers with columns ['OBJECT_ID', 'QUESTION_ID', 'MODEL_ANSWER'].
+    """
 
     # Task to answer checker
     processors = {
@@ -47,6 +65,7 @@ def generate_GLUE3D_answers(
 
     # Check if output file exists
     if output_file is not None:
+        output_file = Path(output_file)
         if output_file.exists():
             raise FileExistsError(
                 f"Output file {output_file} already exists. Please remove it or choose a different name."

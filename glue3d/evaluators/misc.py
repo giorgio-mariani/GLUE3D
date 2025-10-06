@@ -51,10 +51,6 @@ class TraditionalCaptionMetricEvaluator(MetaJudge):
         )
 
         rouge_scores_l = self.rouge.get_scores(model_output, ground_truth)[0]["rouge-l"]
-        cider_score, _ = self.cider.compute_score(
-            self.cider_tokenizer.tokenize({0: [{"caption": ground_truth}]}),
-            self.cider_tokenizer.tokenize({0: [{"caption": model_output}]}),
-        )
 
         # calculate METEOR score
         meteor_scores = meteor_score([ground_truth.split()], model_output.split())
@@ -82,7 +78,6 @@ class TraditionalCaptionMetricEvaluator(MetaJudge):
             "BLEU-3": bleu_3_score * 100,
             "BLEU-4": bleu_4_score * 100,
             "METEOR": meteor_scores * 100,
-            "CIDEr": cider_score * 100,
             "ROUGE-L": rouge_scores_l["f"] * 100,
             "SBERT_SCORE": sbert_similarity * 100,
             "SIMCSE_SCORE": float(simcse_similarity) * 100,

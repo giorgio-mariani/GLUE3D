@@ -50,11 +50,13 @@ def evaluate_GLUE3D_answers(
     output_file: Optional[str] = None,
 ) -> "pd.DataFrame":
     """Evaluates the model answers against the ground truth data using the provided answer evaluator.
+
     Args:
         benchmark_task str: Ground truth data config name.
         model_answer_data (Union[str,pd.DataFrame]): DataFrame (or csv filename) containing the model answers.
         answer_evaluator (Callable): Function to evaluate the model answers against the ground truth ones.
         output_file str: Output filename, must be a .csv
+
     Returns:
         pd.DataFrame: DataFrame containing the evaluation results.
     """
@@ -109,7 +111,7 @@ def evaluate_GLUE3D_answers(
     # Check that all MODEL_ANSWER values are a subset of ANSWER values
     valid_values = set(ground_truth_data[a_k].dropna().unique())
     difference = set(model_answer_data[ma_k].dropna().unique()).difference(valid_values)
-    if len(difference) > 0:
+    if len(difference) > 0 and benchmark_task != QATasks.CAPTION:
         raise ValueError(f"invalid MODEL_ANSWER values: {difference}. Valid values: {valid_values}")
 
     data = model_answer_data.join(ground_truth_data, validate="1:1")
