@@ -132,7 +132,7 @@ def evaluate_GLUE3D_answers(
         # Append the evaluation record to the output
         output_records += [{oid_k: oid, qid_k: qid, **evaluation_output}]
 
-    output_data = pd.DataFrame.from_records(output_records).set_index([oid_k, qid_k])
+    output_data = pd.DataFrame.from_records(output_records)
 
     if output_file is not None:
         output_data.to_csv(output_file, index=False)
