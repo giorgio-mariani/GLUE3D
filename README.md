@@ -1,16 +1,17 @@
-# GLUE3D: General Language Understanding Evaluation for 3D Point Clouds
-
+<h1 align="center">
+GLUE3D: General Language Understanding Evaluation for 3D Point Clouds
+</h1>
 <p align="center">
 Giorgio Mariani, Alessandro Raganato, Simone Melzi, Gabriella Pasi
 </p>
 
 Official implementation of **GLUE3D: General Language Understanding Evaluation for 3D Point Clouds**.
 
-GLUE3D is a Q&A benchmark for 3D-LLMs built around 128 richly textured surfaces spanning creatures, objects, architecture and transport. Each surface is provided both as a 50 k-point RGB point cloud, a 8K-point RGB pointcloud, a 512 × 512 RGB rendering, and a five RGB-D multiviews. Thess multiple representations enable point-for-point evaluation across modalities.
+GLUE3D is a Q&A benchmark for evaluation of 3D-LLMs object understanding capabilities. It is built around 128 richly textured surfaces spanning creatures, objects, architecture and transport. Each surface is provided as a 50 k-point RGB point cloud, a 8K-point RGB point cloud, a 512 × 512 RGB rendering, and five RGB-D multiviews. These multiple representations enable point-for-point evaluation across several modalities.
 
 GLUE3D consists of three Q&A task types: *binary question answering*, *multiple-choice question answering*, and *open-ended captioning*. This diverse set of tasks enables a more robust and comprehensive assessment of multimodal understanding in 3D-LLMs.
 
-![](assets/teaser.png)
+![](assets/teaser.jpg)
 
 ---
 
@@ -132,6 +133,7 @@ qa_answers = generate_GLUE3D_answers(
 )
 
 # `qa_answers` is returned as a pandas DataFrame
+qa_answers.to_csv("qa.csv", index=False)
 ```
 
 ---
