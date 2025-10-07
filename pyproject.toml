@@ -3,12 +3,14 @@ requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "GLUE3D"
+name = "glue3d"
 requires-python = ">= 3.10"
-version = "0.2.0"
+version = "0.2.2"
 description = "Official project for GLUE3D."
 authors = [{name="Giorgio Mariani", email="giorgiomariani94@gmail.com"},]
 readme = "README.md"
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
 
 dependencies = [
     "numpy",
@@ -29,7 +31,7 @@ blender = [
     "bpy==4.4.0"
 ]
 
-qwen3eval = ["llama-cpp-python"]
+qwen-judge = ["llama-cpp-python"]
 dev = [
     "pre-commit",
     "black",
@@ -38,3 +40,6 @@ dev = [
 
 [tool.setuptools]
 packages = ["glue3d"]
+
+[project.scripts]
+glue3d = "glue3d.main:cli"
