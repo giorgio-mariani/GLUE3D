@@ -42,8 +42,10 @@ To evaluate your model, first you need to generate your 3D-LLM's answers for the
 1. Using the dataset loader (`load_GLUE3D_benchmark`) with your own model and code.
 2. Using the built-in AnswerGenerator interface with `generate_GLUE3D_answers`. This option is to be preferred if your model follows `huggingface` causal generation procedure (e.g., `LlavaLlamaForCausalLM`).
 
+<details>
+<summary> Option 1: Using load_GLUE3D_benchmark </summary>
 
-### Option 1: Using `load_GLUE3D_benchmark`
+### Using `load_GLUE3D_benchmark`
 
 The GLUE3D benchmark data can be (down)loaded using:
 
@@ -91,7 +93,12 @@ pd.DataFrame.from_records(model_answers).to_csv("qa.csv", index=False)
 > - For the `multiplechoice_task`, the model answer must be one of `A`, `B`, `C`, `D`.
 > - For the `captioning_task` the model answer must be a string.
 
-### Option 2: Using the `AnswerGenerator` Interface
+</details>
+
+<details>
+<summary> Option 2: Using the `AnswerGenerator` Interface </summary>
+    
+### Using the `AnswerGenerator` Interface
 
 If your 3D-LLM inherits the `GeneratorMixin` class (e.g., `LlavaLlamaForCausalLM`), then it is possible to use our `*HFAnswerGenerator` abstract classes to simplify the generation process. The only requirement is to implement the `prepare_inputs` function, which takes in input the point cloud (or image) and the question and returns the keyword inputs for the `GeneratorMixin.generate()` method:
 
@@ -135,6 +142,8 @@ qa_answers = generate_GLUE3D_answers(
 # `qa_answers` is returned as a pandas DataFrame
 qa_answers.to_csv("qa.csv", index=False)
 ```
+
+</details>
 
 ---
 
