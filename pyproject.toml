@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools >= 61.0"]
+requires = ["setuptools>=80", "setuptools-scm[simple]>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
+dynamic = ["version"]
 name = "glue3d"
 requires-python = ">= 3.10"
-version = "0.2.3"
 description = "Official project for GLUE3D."
 authors = [{name="Giorgio Mariani", email="giorgiomariani94@gmail.com"},]
 readme = "README.md"
