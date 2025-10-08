@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "glue3d"
 requires-python = ">= 3.10"
-version = "0.2.2"
+version = "0.2.3"
 description = "Official project for GLUE3D."
 authors = [{name="Giorgio Mariani", email="giorgiomariani94@gmail.com"},]
 readme = "README.md"
@@ -23,6 +23,7 @@ dependencies = [
     "scipy",
     "click",
     "rouge",
+    "llama-cpp-python",
     "OpenEXR",
 ]
 
@@ -31,7 +32,6 @@ blender = [
     "bpy==4.4.0"
 ]
 
-qwen-judge = ["llama-cpp-python"]
 dev = [
     "pre-commit",
     "black",
