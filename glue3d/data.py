@@ -137,9 +137,11 @@ def load_camera_parameters(camera_parameters: Dict):
     return poses, instrinsics_matrix
 
 
-def load_GLUE3D_benchmark(dataset_name: str, qa_task: str, cache_dir: Path) -> QADataset:
+def load_GLUE3D_benchmark(dataset_name: str, qa_task: str, cache_dir: Union[Path,str]) -> QADataset:
     dataset = Datasets(dataset_name)
     mode = QATasks(qa_task)
+    cache_dir = Path(cache_dir)
+
 
     data = load_dataset("giorgio-mariani-1/GLUE3D", mode.value, split="test")
 
