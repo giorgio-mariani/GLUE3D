@@ -1,0 +1,7 @@
+datasets==4.0.0
+transformers==4.57.0
+accelerate==1.10.1
+bitsandbytes==0.48.1
+huggingface_hub==0.35.3
+qwen-vl-utils==0.0.11
+click==8.2.1
