@@ -50,7 +50,11 @@ def load_minigpt3D_model():
     root_dir = Path(__file__).parent.parent.parent.absolute()
 
     # Change working directory to MiniGPT-3D
-    os.chdir(root_dir / "MiniGPT-3D")
+    minigpt_root = os.environ["MINIGPT3D_ROOT"]
+    if minigpt_root == "":
+        raise ValueError("Environment variable MINIGPT3D_ROOT not set! Unable to load MiniGPT-3D")
+    # os.chdir(root_dir / "docker_images/minigpt3d/MiniGPT-3D") # <- could work, but a weird shortcut
+    os.chdir(minigpt_root)
 
     from minigpt4.common.eval_utils import init_model  # <- required here due to local path in the module
 

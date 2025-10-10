@@ -1,0 +1,9 @@
+[submodule "docker_images/minigpt3d/MiniGPT-3D"]
+	path = docker_images/minigpt3d/MiniGPT-3D
+	url = https://github.com/TangYuan96/MiniGPT-3D.git
+[submodule "docker_images/pointllm/PointLLM"]
+	path = docker_images/pointllm/PointLLM
+	url = https://github.com/InternRobotics/PointLLM.git
+[submodule "docker_images/shapellm_7B/ShapeLLM"]
+	path = docker_images/shapellm/ShapeLLM
+	url = https://github.com/qizekun/ShapeLLM.git

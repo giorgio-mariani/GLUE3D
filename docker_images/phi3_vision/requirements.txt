@@ -1,0 +1,7 @@
+transformers==4.46.0
+accelerate==1.10.1
+click==8.3.0
+datasets==4.0.0
+huggingface_hub==0.35.3
+scipy==1.11.4
+bitsandbytes==0.43.2
