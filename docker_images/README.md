@@ -13,6 +13,7 @@ This will result in several images, each tagged with the models that they suppor
 > - Operating system: `Ubuntu 24.04.2 LTS`
 > - CPU: `AMD Ryzen 5 7600 6-Core Processor`
 > - GPU: `GeForce RTX 3090 Ti`
+> - RAM: `32 GiB DDR5`
 
 
 
