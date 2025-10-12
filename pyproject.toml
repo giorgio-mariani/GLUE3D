@@ -7,8 +7,9 @@ dynamic = ["version"]
 name = "glue3d"
 requires-python = ">= 3.10"
 description = "Official project for GLUE3D."
-authors = [{name="Giorgio Mariani", email="giorgiomariani94@gmail.com"},]
-readme = "README.md"
+authors = [{name="Giorgio Mariani", email="giorgiomariani94@gmail.com"},{name="Alessandro Raganato"},{ name="Simone Melzi"},{ name="Gabriella Pasi"}]
+keywords = ["benchmark", "point cloud", "multimodal", "three-dimensional", "3d"]
+readme = "assets/pypi_README.md"
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
 
@@ -47,3 +48,8 @@ glue3d = "glue3d.main:cli"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[project.urls]
+Homepage = "https://github.com/giorgio-mariani/GLUE3D"
+Repository = "https://github.com/giorgio-mariani/GLUE3D"
+Issues = "https://github.com/giorgio-mariani/GLUE3D/issues"
