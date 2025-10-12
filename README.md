@@ -14,16 +14,24 @@ GLUE3D consists of three Q&A task types: *binary question answering*, *multiple-
 ![](assets/teaser.jpg)
 
 ---
+**Table of Contents**
+- [1. Installation](#1-installation)
+  - [Installation from source](#installation-from-source)
+- [2. Answer generation](#2-answer-generation)
+  - [2.1 Using the GLUE3D data loader](#21-using-the-glue3d-data-loader)
+  - [2.2 Using the `*HFAnswerGenerator` classes](#22-using-the-hfanswergenerator-classes)
+- [3. Answer evaluation](#3-answer-evaluation)
 
-## Installation
+## 1. Installation
 
 To evaluate your question-answering model on GLUE3D, we offer a PyPI package that can be easily installed with the command:
 
 ```bash
 pip install glue3d
 ```
+This is the raccomended way to install the package if you are interested in running your multimodal LLM on GLUE3D.
 
-
+### Installation from source
 You can install glue3d from source if you want the latest changes in the library or are interested in contributing. However, the latest version may not be stable. Feel free to open an [issue](https://github.com/giorgio-mariani/GLUE3D/issues) if you encounter an error.
 
 ```bash
@@ -32,20 +40,16 @@ cd GLUE3D
 
 pip install -e .
 ```
+An advantage of installing directly from source is the ability to utilize the docker-images provided with the library. For more information, take a look at the [README](docker_images/README.md) page in the `docker_images` folder.
 
----
+## 2. Answer generation
 
-## Answer generation
+Before evaluating your model capabilities, you first need to generate your 3D-LLM's answers for the desired GLUE3D task. You can do so in two main ways:
 
-To evaluate your model, first you need to generate your 3D-LLM's answers for the desired GLUE3D task. You can do so in two main ways:
+1. Using the dataset loader (`load_GLUE3D_benchmark`) with your own model and code; Read section [2.1](#22-using-the-glue3d-data-loader) for more information.
+2. Using the built-in [HFAnswerGenerator](glue3d/models/hf.py) abstract classes. This option is to be preferred if your model implements the `generate()` huggingface autoregressive generation method. For example, models like `LlavaLlamaForCausalLM`, or `PointLLMLlamaForCausalLM` are easier to evaluate using this approach. Read section [2.2](#22-using-the-hfanswergenerator-classes) for more information.
 
-1. Using the dataset loader (`load_GLUE3D_benchmark`) with your own model and code.
-2. Using the built-in AnswerGenerator interface with `generate_GLUE3D_answers`. This option is to be preferred if your model follows `huggingface` causal generation procedure (e.g., `LlavaLlamaForCausalLM`).
-
-<details>
-<summary> Option 1: Using load_GLUE3D_benchmark </summary>
-
-### Using `load_GLUE3D_benchmark`
+### 2.1 Using the GLUE3D data loader
 
 The GLUE3D benchmark data can be (down)loaded using:
 
@@ -93,12 +97,8 @@ pd.DataFrame.from_records(model_answers).to_csv("qa.csv", index=False)
 > - For the `multiplechoice_task`, the model answer must be one of `A`, `B`, `C`, `D`.
 > - For the `captioning_task` the model answer must be a string.
 
-</details>
 
-<details>
-<summary> Option 2: Using the `AnswerGenerator` Interface </summary>
-    
-### Using the `AnswerGenerator` Interface
+### 2.2 Using the `*HFAnswerGenerator` classes
 
 If your 3D-LLM inherits the `GeneratorMixin` class (e.g., `LlavaLlamaForCausalLM`), then it is possible to use our `*HFAnswerGenerator` abstract classes to simplify the generation process. The only requirement is to implement the `prepare_inputs` function, which takes in input the point cloud (or image) and the question and returns the keyword inputs for the `GeneratorMixin.generate()` method:
 
@@ -124,7 +124,6 @@ class YourAnswerGenerator(BinaryHFAnswerGenerator): # <- Swap with MultichoiceHF
             "input_ids": ...,
             "points": ...,
             "do_sample": ...,
-            "stopping_criteria": ...,
         }
 ```
 
@@ -143,19 +142,18 @@ qa_answers = generate_GLUE3D_answers(
 qa_answers.to_csv("qa.csv", index=False)
 ```
 
-</details>
-
 ---
 
-## Q&A evaluation
+## 3. Answer evaluation
 As result of the [answer generation](#answer-generation) step, you should have a `.CSV` file containing the question-answer  pairs for a given task. The file (let us call it `binary-qa.csv`) should have a structure similar to
 
-```csv
-OBJECT_ID, QUESTION_ID, VALUE
-dc5c798, 0fbac6, True
-dc5c798, 556cc4, False
-...
-```
+
+|OBJECT_ID  | QUESTION_ID| MODEL_ANSWER|
+|-----------|------------|-------------|
+|dc5c798... | 0fbac6...  | True        |
+|dc5c798... | 556cc4...  | False       |
+|...        |...         |...          |
+
 
 It is then possible to evaluate the answers produced by your model using the `glue3d evaluate` CLI command:
 ```bash

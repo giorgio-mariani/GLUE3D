@@ -7,9 +7,9 @@ dynamic = ["version"]
 name = "glue3d"
 requires-python = ">= 3.10"
 description = "Official project for GLUE3D."
-authors = [{name="Giorgio Mariani", email="giorgiomariani94@gmail.com"},]
+authors = [{name="Giorgio Mariani", email="giorgiomariani94@gmail.com"},{name="Alessandro Raganato"},{ name="Simone Melzi"},{ name="Gabriella Pasi"}]
 keywords = ["benchmark", "point cloud", "multimodal", "three-dimensional", "3d"]
-readme = "README.md"
+readme = "assets/pypi_README.md"
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
 
