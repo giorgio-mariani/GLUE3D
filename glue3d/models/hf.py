@@ -4,6 +4,18 @@ from typing import *
 from glue3d.models.base import AnswerGenerator
 
 
+def to_device(kwargs, device) -> dict:
+    import torch
+
+    output_dict = {}
+    for k, v in dict(**kwargs).items():
+        if isinstance(v, torch.Tensor):
+            output_dict[k] = v.to(device)
+        else:
+            output_dict[k] = v
+    return output_dict
+
+
 class HFAnswerGenerator(AnswerGenerator):
     def __init__(self, model, tokenizer, **kwargs):
         self.model = model
@@ -17,14 +29,13 @@ class HFAnswerGenerator(AnswerGenerator):
         import torch
 
         with torch.inference_mode():
-            inputs = self.prepare_data(data, text).to(self.model.device)
+            inputs = to_device(self.prepare_data(data, text), self.model.device)
 
             # Inference: Generation of the output
             output_ids = self.model.generate(**inputs, **self.kwargs)
-            generated_ids = [
-                output_ids[len(input_ids) :] for input_ids, output_ids in zip(inputs.input_ids, output_ids)
-            ]
-            (output,) = self.processor.batch_decode(
+            input_ids = inputs["input_ids"]
+            generated_ids = [output_ids[len(input_ids) :] for input_ids, output_ids in zip(input_ids, output_ids)]
+            (output,) = self.tokenizer.batch_decode(
                 generated_ids, skip_special_tokens=True, clean_up_tokenization_spaces=True
             )
         return output.strip()
@@ -43,7 +54,7 @@ class MultichoiceHFGenerator(HFAnswerGenerator):
         import torch
 
         with torch.inference_mode():
-            inputs = self.prepare_data(data, text).to(self.model.device)
+            inputs = to_device(self.prepare_data(data, text), self.model.device)
 
             # Inference: Generation of the output
             model_output = self.model(**inputs, return_dict=True, **self.kwargs)

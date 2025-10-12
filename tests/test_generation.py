@@ -3,6 +3,7 @@ import pytest
 import numpy as np
 from glue3d.data import Datasets, QATasks
 from glue3d.generate_answers import generate_GLUE3D_answers
+from glue3d.models.hf import BinaryHFGenerator, MultichoiceHFGenerator, CaptioningHFGenerator
 
 
 def _check_data(data_type, data, text: str) -> bool:
@@ -41,3 +42,43 @@ def test_qa(task_type: QATasks, data_type: Datasets):
 
     # assert False, type(task_type)
     df = generate_GLUE3D_answers(qa_task=task_type.value, dataset_type=data_type.value, answer_generator=fn)
+
+
+def test_hf_answer_generator():
+    from transformers import AutoTokenizer, AutoModelForCausalLM
+
+    tokenizer = AutoTokenizer.from_pretrained("HuggingFaceTB/SmolLM2-135M-Instruct")
+    model = AutoModelForCausalLM.from_pretrained("HuggingFaceTB/SmolLM2-135M-Instruct", device_map="auto")
+
+    def _prepare_data(data, text):
+        # Preparation for inference
+        caption, question = data, text
+        qa_message = dict(
+            role="user",
+            content=f"Consider the following: {caption}\n Answer with the most plausible option. {question}",
+        )
+        return tokenizer.apply_chat_template(
+            [qa_message],
+            tokenize=True,
+            add_generation_prompt=True,
+            return_dict=True,
+            return_tensors="pt",
+        ).to(model.device)
+
+    class TinyGenerator(BinaryHFGenerator):
+        def __init__(self, **kwargs):
+            super().__init__(model, tokenizer, **kwargs)
+
+        def prepare_data(self, data, text):
+            return _prepare_data(data, text)
+
+    generate_GLUE3D_answers("binary_task", "GLUE3D-text", TinyGenerator())
+
+    class TinyGenerator(CaptioningHFGenerator):
+        def __init__(self, **kwargs):
+            super().__init__(model, tokenizer, **kwargs)
+
+        def prepare_data(self, data, text):
+            return _prepare_data(data, text)
+
+    generate_GLUE3D_answers("captioning_task", "GLUE3D-text", TinyGenerator())
