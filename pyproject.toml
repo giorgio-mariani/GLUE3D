@@ -15,17 +15,17 @@ license-files = ["LICEN[CS]E*"]
 
 dependencies = [
     "numpy",
-    "transformers",
-    "huggingface_hub",
     "pandas",
-    "datasets",
-    "sentence-transformers",
-    "nltk",
-    "scipy",
+    "transformers[accelerate]>=4.38.0",
+    "huggingface_hub>=0.24.0",
+    "datasets>=4.0.0",
+    "sentence-transformers>=2.2.2",
+    "nltk>=3.8.0",
+    "scipy>=1.11.0",
     "click",
-    "rouge",
-    "llama-cpp-python",
-    "OpenEXR",
+    "rouge>=1.0.1",
+    "llama-cpp-python==0.3.9",
+    "OpenEXR>=3.4.0",
 ]
 
 [project.optional-dependencies]
