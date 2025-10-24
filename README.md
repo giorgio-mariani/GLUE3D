@@ -170,9 +170,9 @@ out.to_csv("out.csv")
 For the binary and multiple choice tasks, the output is a dataframe which indicates extact match between the question answer and the model provided one. For the captioning task, results scores for *BLEU*, *METEOR*, *ROUGE-L*, *S-BERT*, and *SimCSE* are provided. All scores are scaled to range between 0-100.
 
 > [!NOTE]
-> For the captioning task it is also possible to change the evaluator to use qwen3-30B-A3B as a judge. To do so use the command:
+> For the captioning task, it is also possible to change the evaluator to use qwen3-30B-A3B as a judge. To do so, use the command:
 > ```bash
->glue3d evaluate --input-file captions.csv --output-file out.csv --task captioning_task --evaluator qwen_3_30B_A3B
+>glue3d evaluate captions.csv output.csv --task captioning_task --evaluator qwen_3_30B_A3B
 >```
 
 ---
