@@ -11,7 +11,7 @@ fi
 
 # Get docker image name (convert model name to lower case)
 DOCKER_IMAGE=$(echo "$MODEL" | awk '{print tolower($0)}')
-OUTPUT_FILE="GLUE3D/answers-$MODEL-$DATSET-$TASK.csv"
+OUTPUT_FILE="/GLUE3D/answers-$MODEL-$DATSET-$TASK.csv"
 
 docker run --gpus all --rm -v $HF_HOME:/root/.cache/huggingface -v .:/GLUE3D \
   "$DOCKER_IMAGE" sh -c "PYTHONPATH=/GLUE3D:. python /GLUE3D/glue3d/main.py generate --task $TASK --model $MODEL --output-file \"$OUTPUT_FILE\" --data $DATASET"
