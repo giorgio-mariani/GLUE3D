@@ -26,35 +26,41 @@ def prepare_answer_generator(model: MLLMs):
         from glue3d.models.pointllm import PointLLMAnswerGenerator, MultiChoicePointLLMAnswerGenerator
 
         task_to_cls[QATasks.CAPTION] = _set_max_tokens(PointLLMAnswerGenerator)
+        task_to_cls[QATasks.OPEN_QA] = _set_max_tokens(PointLLMAnswerGenerator)
         task_to_cls[QATasks.BINARY] = _set_bin_choices(MultiChoicePointLLMAnswerGenerator)
         task_to_cls[QATasks.MULTICHOICE] = _set_multi_choices(MultiChoicePointLLMAnswerGenerator)
     if model in {MLLMs.SHAPELLM_7B, MLLMs.SHAPELLM_13B}:
         from glue3d.models.shapellm import ShapeLLMAnswerGenerator, MultiChoiceShapeLLMAnswerGenerator
 
         task_to_cls[QATasks.CAPTION] = _set_max_tokens(ShapeLLMAnswerGenerator)
+        task_to_cls[QATasks.OPEN_QA] = _set_max_tokens(ShapeLLMAnswerGenerator)
         task_to_cls[QATasks.BINARY] = _set_bin_choices(MultiChoiceShapeLLMAnswerGenerator)
         task_to_cls[QATasks.MULTICHOICE] = _set_multi_choices(MultiChoiceShapeLLMAnswerGenerator)
     if model == MLLMs.MINIGPT3D:
         from glue3d.models.minigpt3d import MiniGPT3DAnswerGenerator, MultiChoiceMiniGPT3DAnswerGenerator
 
+        task_to_cls[QATasks.OPEN_QA] = _set_max_tokens(MiniGPT3DAnswerGenerator)
         task_to_cls[QATasks.CAPTION] = _set_max_tokens(MiniGPT3DAnswerGenerator)
         task_to_cls[QATasks.BINARY] = _set_bin_choices(MultiChoiceMiniGPT3DAnswerGenerator)
         task_to_cls[QATasks.MULTICHOICE] = _set_multi_choices(MultiChoiceMiniGPT3DAnswerGenerator)
     if model == MLLMs.QWEN_VL:
         from glue3d.models.qwen import QwenAnswerGenerator, MultichoiceQwenAnswerGenerator
 
+        task_to_cls[QATasks.OPEN_QA] = _set_max_tokens(QwenAnswerGenerator)
         task_to_cls[QATasks.CAPTION] = _set_max_tokens(QwenAnswerGenerator)
         task_to_cls[QATasks.BINARY] = _set_bin_choices(MultichoiceQwenAnswerGenerator)
         task_to_cls[QATasks.MULTICHOICE] = _set_multi_choices(MultichoiceQwenAnswerGenerator)
     if model == MLLMs.LLAVA:
         from glue3d.models.llava import LlaVaAnswerGenerator, MultichoiceLlaVaAnswerGenerator
 
+        task_to_cls[QATasks.OPEN_QA] = _set_max_tokens(LlaVaAnswerGenerator)
         task_to_cls[QATasks.CAPTION] = _set_max_tokens(LlaVaAnswerGenerator)
         task_to_cls[QATasks.BINARY] = _set_bin_choices(MultichoiceLlaVaAnswerGenerator)
         task_to_cls[QATasks.MULTICHOICE] = _set_multi_choices(MultichoiceLlaVaAnswerGenerator)
     if model == MLLMs.PHI_VISION:
         from glue3d.models.phi_vision import PhiVisionAnswerGenerator, MultichoicePhiVsionAnswerGenerator
 
+        task_to_cls[QATasks.OPEN_QA] = _set_max_tokens(PhiVisionAnswerGenerator)
         task_to_cls[QATasks.CAPTION] = _set_max_tokens(PhiVisionAnswerGenerator)
         task_to_cls[QATasks.BINARY] = _set_bin_choices(MultichoicePhiVsionAnswerGenerator)
         task_to_cls[QATasks.MULTICHOICE] = _set_multi_choices(MultichoicePhiVsionAnswerGenerator)
@@ -62,6 +68,7 @@ def prepare_answer_generator(model: MLLMs):
     if model == MLLMs.LLAVA_3D:
         from glue3d.models.llava_3d import LlaVa3DAnswerGenerator, MultichoiceLlaVa3DAnswerGenerator
 
+        task_to_cls[QATasks.OPEN_QA] = _set_max_tokens(LlaVa3DAnswerGenerator)
         task_to_cls[QATasks.CAPTION] = _set_max_tokens(LlaVa3DAnswerGenerator)
         task_to_cls[QATasks.BINARY] = _set_bin_choices(MultichoiceLlaVa3DAnswerGenerator)
         task_to_cls[QATasks.MULTICHOICE] = _set_multi_choices(MultichoiceLlaVa3DAnswerGenerator)
@@ -76,6 +83,7 @@ def prepare_answer_generator(model: MLLMs):
     }:
         from glue3d.models.text_only import TextAnswerGenerator, MultichoiceTextAnswerGenerator
 
+        task_to_cls[QATasks.OPEN_QA] = _set_max_tokens(TextAnswerGenerator)
         task_to_cls[QATasks.CAPTION] = _set_max_tokens(TextAnswerGenerator)
         task_to_cls[QATasks.BINARY] = _set_bin_choices(MultichoiceTextAnswerGenerator)
         task_to_cls[QATasks.MULTICHOICE] = _set_multi_choices(MultichoiceTextAnswerGenerator)
@@ -89,7 +97,7 @@ def prepare_answer_generator(model: MLLMs):
     "--task", "-t", default=[QATasks.BINARY.value], type=click.Choice([x.value for x in QATasks]), multiple=True
 )
 @click.option("--data", "-d", type=click.Choice([x.value for x in Datasets]), required=True)
-@click.option("--output-file", "-o", default="tmp.csv", type=str)
+@click.option("--output-file", "-o", default="out.csv", type=str)
 def generate_answers(model: str, task: List[str], data: str, output_file: str = "tmp.csv"):
 
     model_args = MODEL_LOADERS[MLLMs(model)]()
@@ -112,9 +120,9 @@ def generate_answers(model: str, task: List[str], data: str, output_file: str = 
 
 @click.command("evaluate")
 @click.argument("input-file", type=str)
-@click.argument("output-file", type=str)
 @click.option("--task", "-t", type=click.Choice([x.value for x in QATasks]), required=True)
 @click.option("--evaluator", "-e", type=click.Choice([x.value for x in Evaluators]))
+@click.option("--output-file", "-o", default="eval_out.csv", type=str)
 def evaluate_answers(input_file: str, output_file: str, task: str, evaluator: Optional[str] = None):
     import pandas as pd
 
@@ -122,7 +130,7 @@ def evaluate_answers(input_file: str, output_file: str, task: str, evaluator: Op
 
     out = evaluate_GLUE3D_answers(
         model_answer_data=answers,
-        ground_truth_data=task,
+        benchmark_task=task,
         answer_evaluator=evaluator,
     )
 
