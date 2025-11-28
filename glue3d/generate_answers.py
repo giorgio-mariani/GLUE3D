@@ -5,7 +5,7 @@ from typing import *
 import pandas as pd
 from tqdm import tqdm
 
-from glue3d.data import QATasks, load_GLUE3D_benchmark
+from glue3d.data import QATasks, load_benchmark
 from glue3d.models import AnswerGenerator
 
 
@@ -24,7 +24,7 @@ def process_multichoice(answer: str):
     return answer
 
 
-def process_caption(answer: str):
+def process_text(answer: str):
     if not isinstance(answer, str):
         raise ValueError(f"Output answer '{answer}' should be a string, found {type(answer)} instead!")
     return answer
@@ -60,7 +60,8 @@ def generate_GLUE3D_answers(
     processors = {
         QATasks.BINARY: process_binary,
         QATasks.MULTICHOICE: process_multichoice,
-        QATasks.CAPTION: process_caption,
+        QATasks.CAPTION: process_text,
+        QATasks.OPEN_QA: process_text,
     }
 
     # Check if output file exists
@@ -80,8 +81,9 @@ def generate_GLUE3D_answers(
     if cache_dir is None:
         cache_dir = Path(".cache/glue3d").absolute()
         print(f"Warning: 'GLUE3D_CACHE_DIR' is not set. Using default cache directory ({cache_dir}).")
+        cache_dir.mkdir(exist_ok=True, parents=True)
 
-    dataset = load_GLUE3D_benchmark(dataset_type, qa_task, cache_dir=cache_dir)
+    dataset = load_benchmark(dataset_type, qa_task, cache_dir=cache_dir)
     task_processor = processors[QATasks(qa_task)]
 
     responses = []

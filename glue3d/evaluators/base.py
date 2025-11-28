@@ -6,7 +6,8 @@ import enum
 class Evaluators(enum.Enum):
     BINARY = "binary"
     MULTI_CHOICE = "multichoice"
-    QWEN_3_30B_JUDGE = "qwen_3_30B_A3B"
+    QWEN3_GLUE3D = "qwen3_caption"
+    QWEN3_GLUE3D_OQA = "qwen3_open_qa"
     TRADITIONAL = "traditional"
 
 

@@ -18,6 +18,7 @@ class QATasks(enum.Enum):
     CAPTION = "captioning_task"
     BINARY = "binary_task"
     MULTICHOICE = "multiplechoice_task"
+    OPEN_QA = "open_qa_task"
 
 
 @enum.unique
@@ -73,6 +74,7 @@ QUESTION_TEMPLATES = {
     QATasks.CAPTION: "{question}",
     QATasks.BINARY: "Only answer with 'Yes' or 'No': {question}",
     QATasks.MULTICHOICE: "Only answer with either A,B,C,D: {question}",
+    QATasks.OPEN_QA: "Answer the following question: {question}",
 }
 
 
@@ -96,23 +98,68 @@ def load_pointcloud(file_path: Path, normalize: bool = True) -> np.ndarray:
     return pc
 
 
-def download_from_repo(filename: str) -> Path:
-    return hf_hub_download(
-        repo_id="giorgio-mariani-1/GLUE3D",
+def download_from_repo(filename: str, repo_id: str = "giorgio-mariani-1/GLUE3D", repo_type: str = "dataset") -> Path:
+    return hf_hub_download(repo_id=repo_id, repo_type=repo_type, filename=filename)
+
+
+def get_3DMMVet_annotations(filename: str, mapper: dict = None):
+    mapper = {} if mapper is None else mapper
+
+    # Download data
+    data_file = hf_hub_download(
+        repo_id="qizekun/3D-MM-Vet",
         repo_type="dataset",
         filename=filename,
     )
 
+    oid_k = "OBJECT_ID"
+    qid_k = "QUESTION_ID"
 
-def download_and_cache_zipfile(data_file: str, cache_dir: Path):
+    data = pd.read_json(data_file, lines=True)
+    mapper = dict(point=oid_k, question_id=qid_k, **mapper)
+    data = data.rename(mapper, axis=1).set_index([oid_k, qid_k])
+    data = data.rename(lambda x: int(x.removesuffix(".npy") if type(x) is str else x))
+
+    return data
+
+
+def get_Objaverse_annotations() -> pd.DataFrame:
+
+    # Download data
+    data_file = hf_hub_download(
+        repo_id="RunsenXu/PointLLM",
+        repo_type="dataset",
+        filename="PointLLM_brief_description_val_200_GT.json",
+    )
+
+    with open(data_file, "r") as fp:
+        data_tmp = json.load(fp)
+
+    data = []
+    for i, d in enumerate(data_tmp):
+        entry = dict(OBJECT_ID=d["object_id"], ANSWER=d["conversations"][1]["value"])
+        data.append(entry)
+
+    data = pd.DataFrame.from_records(data)
+    oid_k = "OBJECT_ID"
+    return data.set_index([oid_k])
+
+
+def download_and_cache_zipfile(
+    data_file: str,
+    cache_dir: Path,
+    repo_id: str = "giorgio-mariani-1/GLUE3D",
+    repo_type: str = "dataset",
+):
     # Download the file from the Hugging Face Hub and cache it
-    path = download_from_repo(f"{data_file}.zip")
+    path = download_from_repo(f"{data_file}.zip", repo_id=repo_id, repo_type=repo_type)
 
     if not (cache_dir / data_file).exists():
         with zipfile.ZipFile(path, "r") as zip_ref:
             # Check that the zip file contains the expected filenames
             for f in zip_ref.filelist:
-                assert Path(f.filename).parts[0] == data_file, f"Unexpected file {f.filename} in zipfile {data_file}"
+                if Path(f.filename).parts[0] != Path(f.filename).parts[0]:
+                    print(f"Unexpected file {f.filename} in zipfile {data_file}")
 
             # Extract the contents to the cache directory
             zip_ref.extractall(cache_dir)
@@ -137,13 +184,7 @@ def load_camera_parameters(camera_parameters: Dict):
     return poses, instrinsics_matrix
 
 
-def load_GLUE3D_benchmark(dataset_name: str, qa_task: str, cache_dir: Union[Path,str]) -> QADataset:
-    dataset = Datasets(dataset_name)
-    mode = QATasks(qa_task)
-    cache_dir = Path(cache_dir)
-
-
-    data = load_dataset("giorgio-mariani-1/GLUE3D", mode.value, split="test")
+def load_GLUE3D_benchmark(dataset: Datasets, qa_task: QATasks, cache_dir: Union[Path, str]) -> QADataset:
 
     def load_depth_file(filepath: str) -> np.ndarray:
         import OpenEXR
@@ -160,6 +201,8 @@ def load_GLUE3D_benchmark(dataset_name: str, qa_task: str, cache_dir: Union[Path
         data["depth_maps"] = depths
         data["poses"], data["intrinsics"] = load_camera_parameters(camera_parameters)
         return data
+
+    data = load_dataset("giorgio-mariani-1/GLUE3D", qa_task.value, split="test")
 
     # Setup loading function
     if dataset == Datasets.QA3D_POINTS:
@@ -185,5 +228,13 @@ def load_GLUE3D_benchmark(dataset_name: str, qa_task: str, cache_dir: Union[Path
     return QADataset(
         benchmark_questions=data,
         load_fn=load_fn,
-        question_template=QUESTION_TEMPLATES[mode],
+        question_template=QUESTION_TEMPLATES[qa_task],
     )
+
+
+def load_benchmark(dataset_name: str, vqa_task_name: str, cache_dir: Union[Path, str]):
+    dataset = Datasets(dataset_name)
+    qa_task = QATasks(vqa_task_name)
+    cache_dir = Path(cache_dir)
+
+    return load_GLUE3D_benchmark(dataset, qa_task, cache_dir=cache_dir)

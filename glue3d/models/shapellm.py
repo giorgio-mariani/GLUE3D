@@ -14,7 +14,7 @@ class ShapeLLMAnswerGenerator(AnswerGenerator):
 
         from llava.conversation import conv_templates, SeparatorStyle
 
-        self.conv_template = conv_templates["llava_v1"].copy()
+        self.conv_template = conv_templates["vicuna_v1"].copy()
         self.stop_string = (
             self.conv_template.sep if self.conv_template.sep_style != SeparatorStyle.TWO else self.conv_template.sep2
         )
@@ -42,7 +42,7 @@ class ShapeLLMAnswerGenerator(AnswerGenerator):
         from llava.mm_utils import process_pts, rotation
 
         # pts = pts.numpy()
-        pts[:, :3] = rotation(pts[:, :3], [0, 0, -90])
+        # pts[:, :3] = rotation(pts[:, :3], [0, 0, -90])
         pts_tensor = process_pts(pts, self.model.config).unsqueeze(0)
         return pts_tensor
 

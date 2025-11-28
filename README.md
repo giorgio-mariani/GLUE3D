@@ -9,9 +9,9 @@ Official implementation of **GLUE3D: General Language Understanding Evaluation f
 
 GLUE3D is a Q&A benchmark for evaluation of 3D-LLMs object understanding capabilities. It is built around 128 richly textured surfaces spanning creatures, objects, architecture and transport. Each surface is provided as a 50 k-point RGB point cloud, a 8K-point RGB point cloud, a 512 × 512 RGB rendering, and five RGB-D multiviews. These multiple representations enable point-for-point evaluation across several modalities.
 
-GLUE3D consists of three Q&A task types: *binary question answering*, *multiple-choice question answering*, and *open-ended captioning*. This diverse set of tasks enables a more robust and comprehensive assessment of multimodal understanding in 3D-LLMs.
+GLUE3D consists of four Q&A task types: *binary question answering*, *multiple-choice question answering*, *open-ended question answering*, and *captioning*. This diverse set of tasks enables a more robust and comprehensive assessment of multimodal understanding in 3D-LLMs.
 
-![](assets/teaser.jpg)
+![](assets/teaser.png)
 
 ---
 **Table of Contents**

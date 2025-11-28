@@ -1,6 +1,7 @@
 from typing import *
 from datasets import load_dataset
 import tqdm
+import csv
 
 from glue3d.data import QATasks
 from glue3d.evaluators import Evaluators
@@ -9,6 +10,7 @@ DEFAULT_EVALUATORS = {
     QATasks.BINARY: Evaluators.BINARY,
     QATasks.MULTICHOICE: Evaluators.MULTI_CHOICE,
     QATasks.CAPTION: Evaluators.TRADITIONAL,
+    QATasks.OPEN_QA: Evaluators.TRADITIONAL,
 }
 
 
@@ -26,11 +28,13 @@ def instantiate_evaluator(qa_evaluator: Evaluators) -> Callable:
         return y_true == y_pred
 
     from glue3d.evaluators.loaders import load_qwen3_30B_A3B_model
-    from glue3d.evaluators.qwen3 import Qwen3Judge
     from glue3d.evaluators.misc import TraditionalCaptionMetricEvaluator
+    from glue3d.evaluators.qwen3 import Qwen3Judge, Qwen3JudgeOpenQA
 
-    if qa_evaluator == Evaluators.QWEN_3_30B_JUDGE:
+    if qa_evaluator == Evaluators.QWEN3_GLUE3D:
         answer_evaluator = Qwen3Judge(*load_qwen3_30B_A3B_model())
+    elif qa_evaluator == Evaluators.QWEN3_GLUE3D_OQA:
+        answer_evaluator = Qwen3JudgeOpenQA(*load_qwen3_30B_A3B_model())
     elif qa_evaluator == Evaluators.TRADITIONAL:
         answer_evaluator = TraditionalCaptionMetricEvaluator()
     elif qa_evaluator == Evaluators.BINARY:
@@ -87,10 +91,11 @@ def evaluate_GLUE3D_answers(
     qid_k = "QUESTION_ID"
     ma_k = "MODEL_ANSWER"
     a_k = "ANSWER"
+    q_k = "QUESTION"
 
     # Check if answers is a DataFrame
     if isinstance(model_answer_data, str):
-        model_answer_data = pd.read_csv(model_answer_data, index=[oid_k, qid_k])
+        model_answer_data = pd.read_csv(model_answer_data, dtype={oid_k: str}, index=[oid_k, qid_k])
 
     if not isinstance(model_answer_data, pd.DataFrame):
         raise ValueError("Answers should be a pandas DataFrame.")
@@ -106,13 +111,19 @@ def evaluate_GLUE3D_answers(
     # Load ground truth data
     ground_truth_data = load_dataset("giorgio-mariani-1/GLUE3D", benchmark_task.value, split="test")
     ground_truth_data = pd.DataFrame.from_records(list(ground_truth_data))
-    ground_truth_data = ground_truth_data[[oid_k, qid_k, a_k]].set_index([oid_k, qid_k])
+    if benchmark_task == QATasks.OPEN_QA:
+        ground_truth_data = ground_truth_data[[oid_k, qid_k, q_k, a_k]].set_index([oid_k, qid_k])
+    else:
+        ground_truth_data = ground_truth_data[[oid_k, qid_k, a_k]].set_index([oid_k, qid_k])
 
     # Check that all MODEL_ANSWER values are a subset of ANSWER values
     valid_values = set(ground_truth_data[a_k].dropna().unique())
     difference = set(model_answer_data[ma_k].dropna().unique()).difference(valid_values)
-    if len(difference) > 0 and benchmark_task != QATasks.CAPTION:
+    if len(difference) > 0 and benchmark_task in [QATasks.BINARY, QATasks.MULTICHOICE]:
         raise ValueError(f"invalid MODEL_ANSWER values: {difference}. Valid values: {valid_values}")
+
+    if (model_answer_data.index != ground_truth_data.index).any():
+        raise ValueError("Model answers and ground truth data have different indices!")
 
     data = model_answer_data.join(ground_truth_data, validate="1:1")
 
@@ -135,5 +146,5 @@ def evaluate_GLUE3D_answers(
     output_data = pd.DataFrame.from_records(output_records)
 
     if output_file is not None:
-        output_data.to_csv(output_file, index=False)
+        output_data.to_csv(output_file, quoting=csv.QUOTE_NONNUMERIC, index=False)
     return output_data
