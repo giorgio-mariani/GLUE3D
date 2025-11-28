@@ -18,7 +18,7 @@ class QATasks(enum.Enum):
     CAPTION = "captioning_task"
     BINARY = "binary_task"
     MULTICHOICE = "multiplechoice_task"
-    OPEN_QA = "openqa_task"
+    OPEN_QA = "open_qa_task"
 
 
 @enum.unique

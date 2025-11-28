@@ -7,7 +7,7 @@ class Evaluators(enum.Enum):
     BINARY = "binary"
     MULTI_CHOICE = "multichoice"
     QWEN3_GLUE3D = "qwen3_caption"
-    QWEN3_GLUE3D_OQA = "qwen3_openQA"
+    QWEN3_GLUE3D_OQA = "qwen3_open_qa"
     TRADITIONAL = "traditional"
 
 

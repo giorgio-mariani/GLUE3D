@@ -3,7 +3,7 @@ from datasets import load_dataset
 import tqdm
 import csv
 
-from glue3d.data import QATasks, get_3DMMVet_annotations, get_Objaverse_annotations, OBJAVERSE_200_QUESTION_ID
+from glue3d.data import QATasks
 from glue3d.evaluators import Evaluators
 
 DEFAULT_EVALUATORS = {
