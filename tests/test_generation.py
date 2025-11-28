@@ -24,7 +24,7 @@ def _check_data(data_type, data, text: str) -> bool:
     assert isinstance(text, str)
 
 
-@pytest.mark.parametrize("task_type", [QATasks.BINARY, QATasks.MULTICHOICE, QATasks.CAPTION])
+@pytest.mark.parametrize("task_type", [QATasks.BINARY, QATasks.MULTICHOICE, QATasks.OPEN_QA, QATasks.CAPTION])
 @pytest.mark.parametrize(
     "data_type",
     [Datasets.QA3D_POINTS, Datasets.QA3D_POINTS_8K, Datasets.QA3D_MULTIVIEW, Datasets.QA3D_IMAGE, Datasets.QA3D_TEXT],
@@ -37,7 +37,7 @@ def test_qa(task_type: QATasks, data_type: Datasets):
             return "Yes"
         elif task_type == QATasks.MULTICHOICE:
             return "A"
-        elif task_type == QATasks.CAPTION:
+        elif task_type in [QATasks.CAPTION, QATasks.OPEN_QA]:
             return "The quick brown fox jumps over the lazy dog."
 
     # assert False, type(task_type)
