@@ -5,7 +5,7 @@ GLUE3D: General Language Understanding Evaluation for 3D Point Clouds
 Giorgio Mariani, Alessandro Raganato, Simone Melzi, Gabriella Pasi
 </p>
 
-Official implementation of **GLUE3D: General Language Understanding Evaluation for 3D Point Clouds**.
+Official implementation of [**GLUE3D: General Language Understanding Evaluation for 3D Point Clouds**](https://www.sciencedirect.com/science/article/pii/S1566253525010693).
 
 GLUE3D is a Q&A benchmark for evaluation of 3D-LLMs object understanding capabilities. It is built around 128 richly textured surfaces spanning creatures, objects, architecture and transport. Each surface is provided as a 50 k-point RGB point cloud, a 8K-point RGB point cloud, a 512 × 512 RGB rendering, and five RGB-D multiviews. These multiple representations enable point-for-point evaluation across several modalities.
 
